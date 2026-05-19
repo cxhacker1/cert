@@ -126,8 +126,8 @@ ssl_http() {
     echo "3. 退出"
     echo
     echo "==========================================="
-    local ca_choice=""
-    local SELECTED_CA=""
+    ca_choice=""
+    SELECTED_CA=""
     while true; do
         read -rp "请输入数字选项: " ca_choice
         ca_choice="${ca_choice// /}"  # 去掉空格
@@ -172,10 +172,12 @@ ssl_http() {
                            LOGE "注册失败"
                            return
                         fi
+                        LOGI "注册成功，继续申请证书..."
+                        break 2
                         ;;
                     2)
                         LOGI "已跳过账户注册"
-                        break
+                        break 2
                         ;;
                     3)
                         LOGI "已选择退出"
@@ -197,8 +199,6 @@ ssl_http() {
         esac
     done
 
-        LOGI "你选择的 CA 是: $SELECTED_CA"
-
   # 设置CA
   $HOME/.acme.sh/acme.sh --set-default-ca --server "$SELECTED_CA" --force
 
@@ -208,6 +208,7 @@ ssl_http() {
        LOGE "申请失败"
        return
     fi
+       LOGI "证书申请成功"
   
   # 安装证书到指定目录
   mkdir -p "$HOME/cert/$domain"
@@ -215,7 +216,8 @@ ssl_http() {
       --key-file "$HOME/cert/$domain/privkey.pem" \
       --fullchain-file "$HOME/cert/$domain/fullchain.pem"
 
-  LOGI "证书安装路径： $HOME/cert/$domain"
+  echo
+  LOGI "证书安装保存路径： $HOME/cert/$domain"
   
 }
 
@@ -297,8 +299,8 @@ ssl_cf() {
     echo "3. 退出"
     echo
     echo "==========================================="
-    local ca_choice=""
-    local SELECTED_CA=""
+    ca_choice=""
+    SELECTED_CA=""
     while true; do
         read -rp "请输入数字选项: " ca_choice
         ca_choice="${ca_choice// /}"  # 去掉空格
@@ -343,10 +345,12 @@ ssl_cf() {
                            LOGE "注册失败"
                            return
                         fi
+                        LOGI "注册成功，继续申请证书..."
+                        break 2 # 跳出子循环 + 主循环
                         ;;
                     2)
                         LOGI "已跳过账户注册"
-                        break
+                        break 2 # 直接跳出子循环 + 主循环
                         ;;
                     3)
                         LOGI "已选择退出"
@@ -367,8 +371,6 @@ ssl_cf() {
                 ;;
         esac
     done
-
-        LOGI "你选择的 CA 是: $SELECTED_CA"
 
   # 设置CA
   $HOME/.acme.sh/acme.sh --set-default-ca --server "$SELECTED_CA" --force
@@ -442,13 +444,16 @@ ssl_cf() {
         LOGE "单域名证书申请失败"
         return
       fi
+        LOGI "证书申请成功"
+        
   # 安装证书到指定目录
   mkdir -p "$HOME/cert/$domain"
   $HOME/.acme.sh/acme.sh --install-cert -d "$domain" \
       --key-file "$HOME/cert/$domain/privkey.pem" \
       --fullchain-file "$HOME/cert/$domain/fullchain.pem"
   
-  LOGI "证书安装路径： $HOME/cert/$domain"
+  echo
+  LOGI "证书安装保存路径： $HOME/cert/$domain"
   
   fi
   
@@ -499,6 +504,7 @@ done
         LOGE "二级通配符证书申请失败"
         return
       fi
+        LOGI "证书申请成功"
   
   # 安装证书到指定目录
   mkdir -p "$HOME/cert/$domain"
@@ -506,7 +512,8 @@ done
       --key-file "$HOME/cert/$domain/privkey.pem" \
       --fullchain-file "$HOME/cert/$domain/fullchain.pem"
   
-  LOGI "证书安装路径： $HOME/cert/$domain"
+  echo
+  LOGI "证书安装保存路径： $HOME/cert/$domain"
  
   fi
 }
